@@ -12,6 +12,31 @@ enum UserStatus {
   INACTIVE
 }
 
+enum ObjectivePerspective {
+  FINANCIAL
+  CUSTOMER
+  INTERNAL_PROCESS
+  LEARNING_GROWTH
+}
+
+enum ObjectiveStatus {
+  ON_TRACK
+  AT_RISK
+  BLOCKED
+}
+
+enum KeyResultStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum TargetDirection {
+  INCREASE
+  DECREASE
+}
+
 model Role {
   id          String   @id @default(cuid())
   name        String   @unique
@@ -31,6 +56,8 @@ model Team {
   active      Boolean  @default(true)
 
   users       User[]
+  keyResults   KeyResult[]
+
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -55,6 +82,10 @@ model User {
   team                Team?      @relation(fields: [teamId], references: [id], onDelete: SetNull)
   manager             User?      @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
   subordinates        User[]     @relation("UserManager")
+  ownedObjectives   Objective[] @relation("ObjectiveOwner")
+  createdObjectives Objective[] @relation("ObjectiveCreatedBy")
+  ownedKeyResults   KeyResult[] @relation("KeyResultOwner")
+  createdKeyResults KeyResult[] @relation("KeyResultCreatedBy")
 
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
@@ -63,3 +94,61 @@ model User {
   @@index([teamId])
   @@index([managerId])
 }
+
+model Objective {
+  id            String               @id @default(cuid())
+  year          Int
+  perspective   ObjectivePerspective
+  title         String
+  description   String?
+  status        ObjectiveStatus      @default(ON_TRACK)
+  ownerUserId   String?
+  createdById   String
+
+  owner         User?                @relation("ObjectiveOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  createdBy     User                 @relation("ObjectiveCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  keyResults    KeyResult[]
+
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([year])
+  @@index([perspective])
+  @@index([ownerUserId])
+}
+
+model KeyResult {
+  id                 String           @id @default(cuid())
+  objectiveId        String
+  teamId             String
+  ownerUserId        String
+  year               Int
+  quarter            Int
+  title              String
+  description        String?
+  targetValue        Decimal          @db.Decimal(18, 4)
+  currentValue       Decimal          @default(0) @db.Decimal(18, 4)
+  unit               String
+  targetDirection    TargetDirection
+  progressPercentage Decimal?         @db.Decimal(7, 2)
+  status             KeyResultStatus  @default(NOT_STARTED)
+  isActive           Boolean          @default(true)
+  lastUpdatedAt      DateTime?
+  createdById        String
+
+  objective          Objective        @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  team               Team             @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  owner              User             @relation("KeyResultOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  createdBy          User             @relation("KeyResultCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([objectiveId])
+  @@index([teamId])
+  @@index([ownerUserId])
+  @@index([year, quarter])
+  @@index([status])
+}
+
