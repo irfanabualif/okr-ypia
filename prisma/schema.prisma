@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+
+  users       User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String?  @unique
+  description String?
+  active      Boolean  @default(true)
+
+  users       User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id                  String     @id @default(cuid())
+  roleId              String
+  teamId              String?
+  managerId           String?
+  name                String
+  email               String     @unique
+  passwordHash        String?
+  authProvider        String?
+  employeeCode        String?    @unique
+  joinDate            DateTime?
+  status              UserStatus @default(ACTIVE)
+  minDailyInputTarget Int        @default(1)
+  avatarUrl           String?
+
+  role                Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  team                Team?      @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  manager             User?      @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates        User[]     @relation("UserManager")
+
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@index([roleId])
+  @@index([teamId])
+  @@index([managerId])
+}
