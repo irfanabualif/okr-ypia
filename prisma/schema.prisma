@@ -37,6 +37,27 @@ enum TargetDirection {
   DECREASE
 }
 
+enum TaskSourceType {
+  OKR
+  OPERATIONAL
+  SUPPORT
+  AD_HOC
+}
+
+enum TaskType {
+  ROUTINE
+  INITIATIVE
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+  BLOCKED
+  CANCELLED
+}
+
+
 model Role {
   id          String   @id @default(cuid())
   name        String   @unique
@@ -57,6 +78,7 @@ model Team {
 
   users       User[]
   keyResults   KeyResult[]
+  tasks       Task[]
 
 
   createdAt   DateTime @default(now())
@@ -87,6 +109,8 @@ model User {
   ownedKeyResults   KeyResult[] @relation("KeyResultOwner")
   createdKeyResults KeyResult[] @relation("KeyResultCreatedBy")
 
+  tasks               Task[]
+
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 
@@ -109,6 +133,7 @@ model Objective {
   createdBy     User                 @relation("ObjectiveCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
 
   keyResults    KeyResult[]
+  tasks         Task[]
 
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
@@ -142,6 +167,8 @@ model KeyResult {
   owner              User             @relation("KeyResultOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   createdBy          User             @relation("KeyResultCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
 
+  tasks              Task[]
+
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
@@ -152,3 +179,31 @@ model KeyResult {
   @@index([status])
 }
 
+model Task {
+  id            String         @id @default(cuid())
+  userId        String
+  teamId        String
+  objectiveId   String?
+  keyResultId   String?
+  sourceType    TaskSourceType
+  taskType      TaskType
+  title         String
+  description   String?
+  taskDate      DateTime
+  status        TaskStatus     @default(NOT_STARTED)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team          Team           @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  objective     Objective?     @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  keyResult     KeyResult?     @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([objectiveId])
+  @@index([keyResultId])
+  @@index([status])
+  @@index([taskDate])
+}
