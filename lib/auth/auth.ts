@@ -8,8 +8,8 @@ export type AppUser = {
 export async function getCurrentUser(): Promise<AppUser | null> {
   return {
     id: "demo-user",
-    name: "Demo User",
-    email: "demo@ypia.or.id",
+    name: "Demo Super Admin",
+    email: "admin@ypia.or.id",
     role: "super_admin",
   };
 }

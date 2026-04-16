@@ -1,4 +1,4 @@
-import { Objective, KeyResult, Team, User } from "@prisma/client";
+import { KeyResult, Objective, Team, User } from "@prisma/client";
 
 type TaskFormProps = {
   users: User[];
@@ -14,7 +14,11 @@ export function TaskForm({
   keyResults,
 }: TaskFormProps) {
   return (
-    <form action="/api/tasks" method="post" className="space-y-4 rounded-lg border bg-white p-6 shadow-sm">
+    <form
+      action="/api/tasks"
+      method="post"
+      className="space-y-4 rounded-lg border bg-white p-6 shadow-sm"
+    >
       <div>
         <label className="mb-1 block text-sm font-medium">Judul Task</label>
         <input
@@ -37,7 +41,11 @@ export function TaskForm({
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium">User</label>
-          <select name="userId" className="w-full rounded border px-3 py-2" required>
+          <select
+            name="userId"
+            className="w-full rounded border px-3 py-2"
+            required
+          >
             <option value="">Pilih user</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
@@ -49,7 +57,11 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Team</label>
-          <select name="teamId" className="w-full rounded border px-3 py-2" required>
+          <select
+            name="teamId"
+            className="w-full rounded border px-3 py-2"
+            required
+          >
             <option value="">Pilih team</option>
             {teams.map((team) => (
               <option key={team.id} value={team.id}>
@@ -61,7 +73,10 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Objective</label>
-          <select name="objectiveId" className="w-full rounded border px-3 py-2">
+          <select
+            name="objectiveId"
+            className="w-full rounded border px-3 py-2"
+          >
             <option value="">Tanpa objective</option>
             {objectives.map((objective) => (
               <option key={objective.id} value={objective.id}>
@@ -73,7 +88,10 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Key Result</label>
-          <select name="keyResultId" className="w-full rounded border px-3 py-2">
+          <select
+            name="keyResultId"
+            className="w-full rounded border px-3 py-2"
+          >
             <option value="">Tanpa key result</option>
             {keyResults.map((kr) => (
               <option key={kr.id} value={kr.id}>
@@ -85,7 +103,12 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Source Type</label>
-          <select name="sourceType" className="w-full rounded border px-3 py-2" required>
+          <select
+            name="sourceType"
+            className="w-full rounded border px-3 py-2"
+            required
+            defaultValue="OKR"
+          >
             <option value="OKR">OKR</option>
             <option value="OPERATIONAL">OPERATIONAL</option>
             <option value="SUPPORT">SUPPORT</option>
@@ -95,7 +118,12 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Task Type</label>
-          <select name="taskType" className="w-full rounded border px-3 py-2" required>
+          <select
+            name="taskType"
+            className="w-full rounded border px-3 py-2"
+            required
+            defaultValue="INITIATIVE"
+          >
             <option value="INITIATIVE">INITIATIVE</option>
             <option value="ROUTINE">ROUTINE</option>
           </select>
@@ -103,7 +131,12 @@ export function TaskForm({
 
         <div>
           <label className="mb-1 block text-sm font-medium">Status</label>
-          <select name="status" className="w-full rounded border px-3 py-2" required>
+          <select
+            name="status"
+            className="w-full rounded border px-3 py-2"
+            required
+            defaultValue="NOT_STARTED"
+          >
             <option value="NOT_STARTED">NOT_STARTED</option>
             <option value="IN_PROGRESS">IN_PROGRESS</option>
             <option value="DONE">DONE</option>
@@ -120,6 +153,65 @@ export function TaskForm({
             className="w-full rounded border px-3 py-2"
             required
           />
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium">Effort Level</label>
+          <select
+            name="effortLevel"
+            className="w-full rounded border px-3 py-2"
+            required
+            defaultValue="MEDIUM"
+          >
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+            <option value="DEEP_WORK">DEEP_WORK</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">Complexity</label>
+          <select
+            name="complexity"
+            className="w-full rounded border px-3 py-2"
+            required
+            defaultValue="ROUTINE"
+          >
+            <option value="ROUTINE">ROUTINE</option>
+            <option value="MODERATE">MODERATE</option>
+            <option value="STRATEGIC">STRATEGIC</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Duration (minutes)
+          </label>
+          <input
+            type="number"
+            name="durationMinutes"
+            defaultValue={60}
+            min={1}
+            className="w-full rounded border px-3 py-2"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">Task Category</label>
+          <select
+            name="taskCategory"
+            className="w-full rounded border px-3 py-2"
+          >
+            <option value="">Tanpa kategori</option>
+            <option value="CREATIVE">CREATIVE</option>
+            <option value="OPERATIONAL">OPERATIONAL</option>
+            <option value="STRATEGIC">STRATEGIC</option>
+            <option value="ADMINISTRATIVE">ADMINISTRATIVE</option>
+          </select>
         </div>
       </div>
 

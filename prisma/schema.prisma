@@ -57,32 +57,107 @@ enum TaskStatus {
   CANCELLED
 }
 
+enum ContentType {
+  VIDEO
+  SINGLE_POST
+  CAROUSEL
+  ARTICLE
+  THUMBNAIL
+}
+
+enum ContentStatus {
+  IDEA
+  PENDING
+  PRODUCTION
+  REVIEW
+  REVISION
+  APPROVED
+  PUBLISHED
+  CANCELLED
+}
+
+
+enum TimeBankStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+
+enum EffortLevel {
+  LOW
+  MEDIUM
+  HIGH
+  DEEP_WORK
+}
+
+enum TaskComplexity {
+  ROUTINE
+  MODERATE
+  STRATEGIC
+}
+
+enum TaskCategory {
+  CREATIVE
+  OPERATIONAL
+  STRATEGIC
+  ADMINISTRATIVE
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
 
-  users       User[]
+  users User[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Team {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  code        String?  @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
+  code        String? @unique
   description String?
-  active      Boolean  @default(true)
+  active      Boolean @default(true)
 
-  users       User[]
-  keyResults   KeyResult[]
-  tasks       Task[]
+  users          User[]
+  keyResults     KeyResult[]
+  tasks          Task[]
+  retrospectives Retrospective[]
+  contents       Content[]
+  timeBankEntries TimeBankEntry[]
 
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
@@ -100,19 +175,24 @@ model User {
   minDailyInputTarget Int        @default(1)
   avatarUrl           String?
 
-  role                Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  team                Team?      @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  manager             User?      @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
-  subordinates        User[]     @relation("UserManager")
+  role              Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  team              Team?       @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  manager           User?       @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates      User[]      @relation("UserManager")
   ownedObjectives   Objective[] @relation("ObjectiveOwner")
   createdObjectives Objective[] @relation("ObjectiveCreatedBy")
   ownedKeyResults   KeyResult[] @relation("KeyResultOwner")
   createdKeyResults KeyResult[] @relation("KeyResultCreatedBy")
 
-  tasks               Task[]
+  tasks             Task[]
+  retrospectives    Retrospective[]
+  requestedContents Content[]       @relation("ContentRequestor")
+  assignedContents  Content[]       @relation("ContentAssignee")
+  timeBankEntries        TimeBankEntry[] @relation("TimeBankUser")
+  approvedTimeBankEntries TimeBankEntry[] @relation("TimeBankApprovedBy")
 
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([roleId])
   @@index([teamId])
@@ -120,23 +200,23 @@ model User {
 }
 
 model Objective {
-  id            String               @id @default(cuid())
-  year          Int
-  perspective   ObjectivePerspective
-  title         String
-  description   String?
-  status        ObjectiveStatus      @default(ON_TRACK)
-  ownerUserId   String?
-  createdById   String
+  id          String               @id @default(cuid())
+  year        Int
+  perspective ObjectivePerspective
+  title       String
+  description String?
+  status      ObjectiveStatus      @default(ON_TRACK)
+  ownerUserId String?
+  createdById String
 
-  owner         User?                @relation("ObjectiveOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
-  createdBy     User                 @relation("ObjectiveCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  owner     User? @relation("ObjectiveOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  createdBy User  @relation("ObjectiveCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
 
-  keyResults    KeyResult[]
-  tasks         Task[]
+  keyResults KeyResult[]
+  tasks      Task[]
 
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([year])
   @@index([perspective])
@@ -144,7 +224,7 @@ model Objective {
 }
 
 model KeyResult {
-  id                 String           @id @default(cuid())
+  id                 String          @id @default(cuid())
   objectiveId        String
   teamId             String
   ownerUserId        String
@@ -152,25 +232,25 @@ model KeyResult {
   quarter            Int
   title              String
   description        String?
-  targetValue        Decimal          @db.Decimal(18, 4)
-  currentValue       Decimal          @default(0) @db.Decimal(18, 4)
+  targetValue        Decimal         @db.Decimal(18, 4)
+  currentValue       Decimal         @default(0) @db.Decimal(18, 4)
   unit               String
   targetDirection    TargetDirection
-  progressPercentage Decimal?         @db.Decimal(7, 2)
-  status             KeyResultStatus  @default(NOT_STARTED)
-  isActive           Boolean          @default(true)
+  progressPercentage Decimal?        @db.Decimal(7, 2)
+  status             KeyResultStatus @default(NOT_STARTED)
+  isActive           Boolean         @default(true)
   lastUpdatedAt      DateTime?
   createdById        String
 
-  objective          Objective        @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
-  team               Team             @relation(fields: [teamId], references: [id], onDelete: Restrict)
-  owner              User             @relation("KeyResultOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
-  createdBy          User             @relation("KeyResultCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  objective Objective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  owner     User      @relation("KeyResultOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  createdBy User      @relation("KeyResultCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
 
-  tasks              Task[]
+  tasks Task[]
 
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([objectiveId])
   @@index([teamId])
@@ -180,25 +260,35 @@ model KeyResult {
 }
 
 model Task {
-  id            String         @id @default(cuid())
-  userId        String
-  teamId        String
-  objectiveId   String?
-  keyResultId   String?
-  sourceType    TaskSourceType
-  taskType      TaskType
-  title         String
-  description   String?
-  taskDate      DateTime
-  status        TaskStatus     @default(NOT_STARTED)
+  id          String         @id @default(cuid())
+  userId      String
+  teamId      String
+  objectiveId String?
+  keyResultId String?
+  
+  sourceType  TaskSourceType
+  taskType    TaskType
+  title       String
+  description String?
+  taskDate    DateTime
+  status      TaskStatus     @default(NOT_STARTED)
+  
+  effortLevel         EffortLevel      @default(MEDIUM)
+  complexity          TaskComplexity   @default(ROUTINE)
+  durationMinutes     Int              @default(60)
+  taskCategory        TaskCategory?
+  isDeepWork          Boolean          @default(false)
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team          Team           @relation(fields: [teamId], references: [id], onDelete: Restrict)
-  objective     Objective?     @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
-  keyResult     KeyResult?     @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+  activityScore       Int              @default(1)
+  contributionScore   Float            @default(0)
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  objective Objective? @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  keyResult KeyResult? @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([teamId])
@@ -206,4 +296,81 @@ model Task {
   @@index([keyResultId])
   @@index([status])
   @@index([taskDate])
+}
+
+model Retrospective {
+  id        String   @id @default(cuid())
+  userId    String
+  teamId    String
+  weekStart DateTime
+  weekEnd   DateTime
+
+  workSummary     Json
+  keyResultImpact Json
+
+  blockers String?
+  insights String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([weekStart])
+}
+
+model Content {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  contentType ContentType
+  status      ContentStatus @default(IDEA)
+
+  requestorId String
+  assigneeId  String?
+  teamId      String
+
+  deadline    DateTime?
+  publishDate DateTime?
+
+  productionLink String?
+  revisionNotes  String?
+
+  requestor User  @relation("ContentRequestor", fields: [requestorId], references: [id])
+  assignee  User? @relation("ContentAssignee", fields: [assigneeId], references: [id])
+  team      Team  @relation(fields: [teamId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([teamId])
+}
+
+
+model TimeBankEntry {
+  id              String         @id @default(cuid())
+  userId          String
+  teamId          String
+  entryDate       DateTime
+  durationMinutes Int
+  reason          String
+  notes           String?
+  approvedById    String?
+  status          TimeBankStatus @default(SUBMITTED)
+
+  user            User           @relation("TimeBankUser", fields: [userId], references: [id], onDelete: Cascade)
+  team            Team           @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  approvedBy      User?          @relation("TimeBankApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([entryDate])
+  @@index([status])
 }
