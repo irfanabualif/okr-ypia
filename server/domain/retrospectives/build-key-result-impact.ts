@@ -1,41 +1,50 @@
-import type { KeyResult, Objective, Task } from "@prisma/client";
-
-type TaskWithRelations = Task & {
-  objective: Objective | null;
-  keyResult: KeyResult | null;
+type TaskLike = {
+  id: string;
+  keyResultId?: string | null;
+  keyResult?: {
+    title: string;
+  } | null;
+  contributionScore: number;
+  isDeepWork: boolean;
 };
 
-export function buildKeyResultImpact(tasks: TaskWithRelations[]) {
+export function buildKeyResultImpact(tasks: TaskLike[]) {
   const grouped = new Map<
     string,
     {
       keyResultId: string;
       keyResultTitle: string;
-      objectiveTitle: string | null;
       taskCount: number;
-      taskTitles: string[];
+      totalContributionScore: number;
+      deepWorkCount: number;
     }
   >();
 
   for (const task of tasks) {
-    if (!task.keyResult) continue;
-
-    const existing = grouped.get(task.keyResult.id);
-
-    if (existing) {
-      existing.taskCount += 1;
-      existing.taskTitles.push(task.title);
+    if (!task.keyResultId || !task.keyResult?.title) {
       continue;
     }
 
-    grouped.set(task.keyResult.id, {
-      keyResultId: task.keyResult.id,
-      keyResultTitle: task.keyResult.title,
-      objectiveTitle: task.objective?.title ?? null,
-      taskCount: 1,
-      taskTitles: [task.title],
-    });
+    const existing = grouped.get(task.keyResultId);
+
+    if (existing) {
+      existing.taskCount += 1;
+      existing.totalContributionScore += task.contributionScore;
+      if (task.isDeepWork) {
+        existing.deepWorkCount += 1;
+      }
+    } else {
+      grouped.set(task.keyResultId, {
+        keyResultId: task.keyResultId,
+        keyResultTitle: task.keyResult.title,
+        taskCount: 1,
+        totalContributionScore: task.contributionScore,
+        deepWorkCount: task.isDeepWork ? 1 : 0,
+      });
+    }
   }
 
-  return Array.from(grouped.values());
+  return Array.from(grouped.values()).sort(
+    (a, b) => b.totalContributionScore - a.totalContributionScore
+  );
 }

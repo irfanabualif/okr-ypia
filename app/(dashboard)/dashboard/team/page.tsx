@@ -20,13 +20,15 @@ export default async function TeamDashboardPage() {
       <div>
         <h1 className="text-2xl font-bold">Dashboard Team</h1>
         <p className="text-sm text-gray-500">
-          Ringkasan aktivitas dan retrospective tim.
+          Ringkasan activity, contribution, deep work, dan retrospective tim.
         </p>
       </div>
 
       <TeamSummaryCards
         totalTasks={data.totalTasks}
-        totalScore={data.totalScore}
+        totalActivityScore={data.totalActivityScore}
+        totalContributionScore={data.totalContributionScore}
+        deepWorkCount={data.deepWorkCount}
         memberCount={data.memberCount}
       />
 

@@ -24,6 +24,11 @@ export const navigation = [
     href: "/tasks",
   },
 
+{
+  label: "Deep Work",
+  href: "/tasks/deep-work",
+},
+
   {
     label: "Retrospectives",
     href: "/retrospectives",

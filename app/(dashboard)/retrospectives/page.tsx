@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { RetrospectiveFilters } from "@/components/retrospective/retrospective-filters";
-import { generateRetrospectivePreview, getRetrospectives } from "@/server/services/retrospective.service";
+import {
+  generateRetrospectivePreview,
+  getRetrospectives,
+} from "@/server/services/retrospective.service";
 import { getLast7DaysRange } from "@/server/domain/retrospectives/get-retrospective-date-range";
 
 type Props = {
@@ -94,6 +97,7 @@ export default async function RetrospectivesPage({ searchParams }: Props) {
 
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="mb-3 text-lg font-semibold">Preview Mingguan</h2>
+
         <p className="text-sm text-gray-500">
           User aktif: {activeUser?.name ?? latestTask.user.name}
         </p>
@@ -105,6 +109,34 @@ export default async function RetrospectivesPage({ searchParams }: Props) {
           {endDate.toLocaleDateString("id-ID")}
         </p>
 
+        <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded border p-4">
+            <p className="text-sm text-gray-500">Total Tasks</p>
+            <p className="mt-1 text-xl font-bold">{preview.totals.totalTasks}</p>
+          </div>
+
+          <div className="rounded border p-4">
+            <p className="text-sm text-gray-500">Activity Score</p>
+            <p className="mt-1 text-xl font-bold">
+              {preview.totals.totalActivityScore}
+            </p>
+          </div>
+
+          <div className="rounded border p-4">
+            <p className="text-sm text-gray-500">Contribution Score</p>
+            <p className="mt-1 text-xl font-bold">
+              {preview.totals.totalContributionScore.toFixed(2)}
+            </p>
+          </div>
+
+          <div className="rounded border p-4">
+            <p className="text-sm text-gray-500">Deep Work Tasks</p>
+            <p className="mt-1 text-xl font-bold">
+              {preview.totals.deepWorkCount}
+            </p>
+          </div>
+        </div>
+
         <form action="/api/retrospectives" method="post" className="mb-6">
           <input type="hidden" name="userId" value={activeUserId} />
           <input
@@ -112,7 +144,11 @@ export default async function RetrospectivesPage({ searchParams }: Props) {
             name="teamId"
             value={activeTeamTask?.teamId ?? latestTask.teamId}
           />
-          <input type="hidden" name="weekStart" value={startDate.toISOString()} />
+          <input
+            type="hidden"
+            name="weekStart"
+            value={startDate.toISOString()}
+          />
           <input type="hidden" name="weekEnd" value={endDate.toISOString()} />
 
           <button
@@ -123,25 +159,106 @@ export default async function RetrospectivesPage({ searchParams }: Props) {
           </button>
         </form>
 
-        <div className="rounded border p-4">
-          <h3 className="mb-2 font-semibold">Work Summary</h3>
-          {preview.workSummary.length === 0 ? (
-            <p className="text-sm text-gray-500">Belum ada task di rentang ini.</p>
-          ) : (
-            <div className="space-y-2">
-              {preview.workSummary.map((item) => (
-                <div key={item.taskId} className="rounded border p-3">
-                  <div className="font-medium">{item.title}</div>
-                  <div className="text-sm text-gray-500">
-                    {item.keyResultTitle ?? "Tanpa Key Result"} • {item.status}
+        <div className="space-y-4">
+          <div className="rounded border p-4">
+            <h3 className="mb-3 font-semibold">Work Summary</h3>
+
+            {preview.workSummary.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Belum ada task di rentang ini.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {preview.workSummary.map((item) => (
+                  <div key={item.taskId} className="rounded border p-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="font-medium">{item.title}</div>
+                        <div className="text-sm text-gray-500">
+                          {item.keyResultTitle ?? "Tanpa Key Result"} •{" "}
+                          {item.status}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(item.taskDate).toLocaleDateString("id-ID")}
+                        </div>
+                      </div>
+
+                      {item.isDeepWork ? (
+                        <span className="rounded border px-2 py-1 text-xs font-medium">
+                          Deep Work
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-3 grid gap-3 md:grid-cols-4">
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Activity</p>
+                        <p className="font-semibold">{item.activityScore}</p>
+                      </div>
+
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Contribution</p>
+                        <p className="font-semibold">
+                          {item.contributionScore.toFixed(2)}
+                        </p>
+                      </div>
+
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Deep Work</p>
+                        <p className="font-semibold">
+                          {item.isDeepWork ? "Yes" : "-"}
+                        </p>
+                      </div>
+
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Category</p>
+                        <p className="font-semibold">{item.taskCategory ?? "-"}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">
-                    {new Date(item.taskDate).toLocaleDateString("id-ID")}
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded border p-4">
+            <h3 className="mb-3 font-semibold">Key Result Impact</h3>
+
+            {preview.keyResultImpact.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Belum ada task yang terhubung ke Key Result.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {preview.keyResultImpact.map((item) => (
+                  <div key={item.keyResultId} className="rounded border p-3">
+                    <div className="font-medium">{item.keyResultTitle}</div>
+
+                    <div className="mt-2 grid gap-3 md:grid-cols-3">
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Task Count</p>
+                        <p className="font-semibold">{item.taskCount}</p>
+                      </div>
+
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">
+                          Contribution Score
+                        </p>
+                        <p className="font-semibold">
+                          {item.totalContributionScore.toFixed(2)}
+                        </p>
+                      </div>
+
+                      <div className="rounded border px-3 py-2">
+                        <p className="text-xs text-gray-500">Deep Work Count</p>
+                        <p className="font-semibold">{item.deepWorkCount}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

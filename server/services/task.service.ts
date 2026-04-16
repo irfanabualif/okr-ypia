@@ -56,6 +56,7 @@ export async function getTasks(filters?: {
   status?: TaskStatus;
   userId?: string;
   sourceType?: TaskSourceType;
+  isDeepWork?: boolean;
 }) {
   return findAllTasks(filters);
 }

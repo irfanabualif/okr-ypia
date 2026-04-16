@@ -62,7 +62,13 @@ export function TaskTable({ tasks }: TaskTableProps) {
               <td className="px-4 py-3 font-semibold">
                 {task.contributionScore.toFixed(2)}
               </td>
-              <td className="px-4 py-3">{task.isDeepWork ? "Yes" : "-"}</td>
+              <td className="px-4 py-3">{task.isDeepWork ? (
+  <span className="rounded border px-2 py-1 text-xs font-medium">
+    Deep Work
+  </span>
+) : (
+  "-"
+)}</td>
 
               <td className="px-4 py-3">
                 <Link

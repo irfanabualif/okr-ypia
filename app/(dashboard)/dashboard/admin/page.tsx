@@ -21,7 +21,7 @@ export default async function AdminDashboardPage() {
       <div>
         <h1 className="text-2xl font-bold">Dashboard Admin</h1>
         <p className="text-sm text-gray-500">
-          Ringkasan keseluruhan sistem OKR YPIA.
+          Ringkasan activity, contribution, deep work, dan kondisi sistem.
         </p>
       </div>
 
@@ -32,6 +32,9 @@ export default async function AdminDashboardPage() {
         totalKeyResults={data.totalKeyResults}
         totalTasks={data.totalTasks}
         totalRetrospectives={data.totalRetrospectives}
+        totalActivityScore={data.totalActivityScore}
+        totalContributionScore={data.totalContributionScore}
+        totalDeepWork={data.totalDeepWork}
       />
 
       <div className="grid gap-6 xl:grid-cols-2">

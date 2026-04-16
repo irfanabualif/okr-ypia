@@ -13,6 +13,7 @@ type Props = {
     status?: string;
     userId?: string;
     sourceType?: string;
+    isDeepWork?: string;
   }>;
 };
 
@@ -23,18 +24,27 @@ export default async function TasksPage({ searchParams }: Props) {
   const status = (params.status as TaskStatus) || undefined;
   const userId = params.userId || undefined;
   const sourceType = (params.sourceType as TaskSourceType) || undefined;
+  
+  const isDeepWork =
+  params.isDeepWork === "true"
+    ? true
+    : params.isDeepWork === "false"
+    ? false
+    : undefined;
 
-  const [tasks, users] = await Promise.all([
-    getTasks({
-      search,
-      status,
-      userId,
-      sourceType,
-    }),
-    prisma.user.findMany({
-      orderBy: { name: "asc" },
-    }),
-  ]);
+
+const [tasks, users] = await Promise.all([
+  getTasks({
+    search,
+    status,
+    userId,
+    sourceType,
+    isDeepWork,
+  }),
+  prisma.user.findMany({
+    orderBy: { name: "asc" },
+  }),
+]);
 
   return (
     <div className="space-y-6">
@@ -67,13 +77,14 @@ export default async function TasksPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      <TaskFilters
-        users={users}
-        currentSearch={search}
-        currentStatus={status}
-        currentUserId={userId}
-        currentSourceType={sourceType}
-      />
+<TaskFilters
+  users={users}
+  currentSearch={search}
+  currentStatus={status}
+  currentUserId={userId}
+  currentSourceType={sourceType}
+  currentIsDeepWork={params.isDeepWork}
+/>
 
       {tasks.length === 0 ? (
         <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">

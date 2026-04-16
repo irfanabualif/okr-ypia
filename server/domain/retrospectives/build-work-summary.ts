@@ -1,20 +1,31 @@
-import type { KeyResult, Objective, Task } from "@prisma/client";
+type TaskLike = {
+  id: string;
+  title: string;
+  status: string;
+  taskDate: Date;
+  keyResultId?: string | null;
+  keyResult?: {
+    title: string;
+  } | null;
 
-type TaskWithRelations = Task & {
-  objective: Objective | null;
-  keyResult: KeyResult | null;
+  activityScore: number;
+  contributionScore: number;
+  isDeepWork: boolean;
+  taskCategory?: string | null;
 };
 
-export function buildWorkSummary(tasks: TaskWithRelations[]) {
+export function buildWorkSummary(tasks: TaskLike[]) {
   return tasks.map((task) => ({
     taskId: task.id,
     title: task.title,
-    description: task.description,
-    taskDate: task.taskDate,
     status: task.status,
-    taskType: task.taskType,
-    sourceType: task.sourceType,
-    objectiveTitle: task.objective?.title ?? null,
+    taskDate: task.taskDate,
+    keyResultId: task.keyResultId ?? null,
     keyResultTitle: task.keyResult?.title ?? null,
+
+    activityScore: task.activityScore,
+    contributionScore: task.contributionScore,
+    isDeepWork: task.isDeepWork,
+    taskCategory: task.taskCategory ?? null,
   }));
 }

@@ -104,7 +104,11 @@ enum TaskCategory {
   ADMINISTRATIVE
 }
 
-
+enum AppreciationType {
+  HELPFUL
+  IMPACTFUL
+  INITIATIVE
+}
 
 
 
@@ -190,6 +194,8 @@ model User {
   assignedContents  Content[]       @relation("ContentAssignee")
   timeBankEntries        TimeBankEntry[] @relation("TimeBankUser")
   approvedTimeBankEntries TimeBankEntry[] @relation("TimeBankApprovedBy")
+  appreciationsGiven     Appreciation[] @relation("AppreciationFrom")
+  appreciationsReceived  Appreciation[] @relation("AppreciationTo")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -286,6 +292,7 @@ model Task {
   team      Team       @relation(fields: [teamId], references: [id], onDelete: Restrict)
   objective Objective? @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
   keyResult KeyResult? @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+  appreciations          Appreciation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -373,4 +380,25 @@ model TimeBankEntry {
   @@index([teamId])
   @@index([entryDate])
   @@index([status])
+}
+
+model Appreciation {
+  id         String           @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  taskId     String?
+  message    String
+  type       AppreciationType
+
+  fromUser   User             @relation("AppreciationFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User             @relation("AppreciationTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  task       Task?            @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([taskId])
+  @@index([createdAt])
 }

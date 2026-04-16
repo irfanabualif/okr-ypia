@@ -24,14 +24,16 @@ export default async function PersonalDashboardPage() {
       <div>
         <h1 className="text-2xl font-bold">Dashboard Personal</h1>
         <p className="text-sm text-gray-500">
-          Ringkasan aktivitas dan kontribusi user.
+          Ringkasan activity, contribution, dan deep work user.
         </p>
       </div>
 
       <PersonalSummaryCards
         totalTasks={data.totalTasks}
         completedTasks={data.completedTasks}
-        totalScore={data.totalScore}
+        totalActivityScore={data.totalActivityScore}
+        totalContributionScore={data.totalContributionScore}
+        deepWorkCount={data.deepWorkCount}
       />
 
       <div className="grid gap-6 xl:grid-cols-2">

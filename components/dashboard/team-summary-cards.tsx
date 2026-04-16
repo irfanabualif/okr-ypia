@@ -1,33 +1,40 @@
-import { MetricCard } from "@/components/dashboard/metric-card";
-
-type Props = {
+type TeamSummaryCardsProps = {
   totalTasks: number;
-  totalScore: number;
+  totalActivityScore: number;
+  totalContributionScore: number;
+  deepWorkCount: number;
   memberCount: number;
 };
 
 export function TeamSummaryCards({
   totalTasks,
-  totalScore,
+  totalActivityScore,
+  totalContributionScore,
+  deepWorkCount,
   memberCount,
-}: Props) {
+}: TeamSummaryCardsProps) {
+  const items = [
+    { label: "Total Tasks", value: totalTasks },
+    { label: "Activity Score", value: totalActivityScore },
+    {
+      label: "Contribution Score",
+      value: Number(totalContributionScore.toFixed(2)),
+    },
+    { label: "Deep Work Tasks", value: deepWorkCount },
+    { label: "Team Members", value: memberCount },
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <MetricCard
-        label="Total Tasks Team"
-        value={totalTasks}
-        description="Jumlah task seluruh tim"
-      />
-      <MetricCard
-        label="Total Score Team"
-        value={totalScore}
-        description="Akumulasi score tim"
-      />
-      <MetricCard
-        label="Member Count"
-        value={memberCount}
-        description="Jumlah anggota tim"
-      />
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="rounded-lg border bg-white p-5 shadow-sm"
+        >
+          <p className="text-sm text-gray-500">{item.label}</p>
+          <p className="mt-2 text-2xl font-bold">{item.value}</p>
+        </div>
+      ))}
     </div>
   );
 }

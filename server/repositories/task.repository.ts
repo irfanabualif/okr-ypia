@@ -33,6 +33,7 @@ export async function findAllTasks(filters?: {
   status?: TaskStatus;
   userId?: string;
   sourceType?: TaskSourceType;
+  isDeepWork?: boolean;
 }) {
   return prisma.task.findMany({
     where: {
@@ -57,6 +58,11 @@ export async function findAllTasks(filters?: {
       ...(filters?.sourceType
         ? {
             sourceType: filters.sourceType,
+          }
+        : {}),
+      ...(typeof filters?.isDeepWork === "boolean"
+        ? {
+            isDeepWork: filters.isDeepWork,
           }
         : {}),
     },

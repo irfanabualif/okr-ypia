@@ -16,7 +16,9 @@ export async function getPersonalDashboardData() {
       user: null,
       totalTasks: 0,
       completedTasks: 0,
-      totalScore: 0,
+      totalActivityScore: 0,
+      totalContributionScore: 0,
+      deepWorkCount: 0,
       latestRetrospective: null,
       tasks: [],
       taskStatusSummary: [],
@@ -39,16 +41,19 @@ export async function getPersonalDashboardData() {
 
   const allUserTasks = await prisma.task.findMany({
     where: { userId },
-    include: {
-      keyResult: true,
-    },
   });
 
   const completedTasks = allUserTasks.filter((task) => task.status === "DONE").length;
 
-  const totalScore = allUserTasks.reduce((total, task) => {
+  const totalActivityScore = allUserTasks.reduce((total, task) => {
+    return total + task.activityScore;
+  }, 0);
+
+  const totalContributionScore = allUserTasks.reduce((total, task) => {
     return total + task.contributionScore;
   }, 0);
+
+  const deepWorkCount = allUserTasks.filter((task) => task.isDeepWork).length;
 
   const taskStatusSummary = [
     {
@@ -82,7 +87,9 @@ export async function getPersonalDashboardData() {
     user: latestTask.user,
     totalTasks: allUserTasks.length,
     completedTasks,
-    totalScore,
+    totalActivityScore,
+    totalContributionScore,
+    deepWorkCount,
     latestRetrospective,
     tasks,
     taskStatusSummary,
@@ -101,7 +108,9 @@ export async function getTeamDashboardData() {
     return {
       team: null,
       totalTasks: 0,
-      totalScore: 0,
+      totalActivityScore: 0,
+      totalContributionScore: 0,
+      deepWorkCount: 0,
       memberCount: 0,
       retrospectives: [],
       tasks: [],
@@ -133,14 +142,17 @@ export async function getTeamDashboardData() {
 
   const allTeamTasks = await prisma.task.findMany({
     where: { teamId },
-    include: {
-      keyResult: true,
-    },
   });
 
-  const totalScore = allTeamTasks.reduce((total, task) => {
+  const totalActivityScore = allTeamTasks.reduce((total, task) => {
+    return total + task.activityScore;
+  }, 0);
+
+  const totalContributionScore = allTeamTasks.reduce((total, task) => {
     return total + task.contributionScore;
   }, 0);
+
+  const deepWorkCount = allTeamTasks.filter((task) => task.isDeepWork).length;
 
   const taskStatusSummary = [
     {
@@ -212,7 +224,9 @@ export async function getTeamDashboardData() {
   return {
     team,
     totalTasks: allTeamTasks.length,
-    totalScore,
+    totalActivityScore,
+    totalContributionScore,
+    deepWorkCount,
     memberCount: team?.users.length ?? 0,
     retrospectives,
     tasks: recentTasks,
@@ -251,6 +265,16 @@ export async function getAdminDashboardData() {
       },
     }),
   ]);
+
+  const totalActivityScore = allTasks.reduce((total, task) => {
+    return total + task.activityScore;
+  }, 0);
+
+  const totalContributionScore = allTasks.reduce((total, task) => {
+    return total + task.contributionScore;
+  }, 0);
+
+  const totalDeepWork = allTasks.filter((task) => task.isDeepWork).length;
 
   const taskStatusSummary = [
     {
@@ -314,6 +338,9 @@ export async function getAdminDashboardData() {
     totalTasks,
     totalRetrospectives,
     totalTimeBankEntries,
+    totalActivityScore,
+    totalContributionScore,
+    totalDeepWork,
     taskStatusSummary,
     contentPipelineSummary,
     recentRetrospectives: recentRetrospectives.map((item) => ({

@@ -6,6 +6,7 @@ type TaskFiltersProps = {
   currentStatus?: string;
   currentUserId?: string;
   currentSourceType?: string;
+  currentIsDeepWork?: string;
 };
 
 export function TaskFilters({
@@ -14,12 +15,13 @@ export function TaskFilters({
   currentStatus,
   currentUserId,
   currentSourceType,
+  currentIsDeepWork,
 }: TaskFiltersProps) {
   return (
     <form
       method="get"
       action="/tasks"
-      className="grid gap-4 rounded-lg border bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-5"
+      className="grid gap-4 rounded-lg border bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-6"
     >
       <div>
         <label className="mb-1 block text-sm font-medium">Search</label>
@@ -78,6 +80,19 @@ export function TaskFilters({
           <option value="AD_HOC">AD_HOC</option>
         </select>
       </div>
+
+<div>
+  <label className="mb-1 block text-sm font-medium">Deep Work</label>
+  <select
+    name="isDeepWork"
+    defaultValue={currentIsDeepWork ?? ""}
+    className="w-full rounded border px-3 py-2"
+  >
+    <option value="">Semua</option>
+    <option value="true">Deep Work Only</option>
+    <option value="false">Non Deep Work</option>
+  </select>
+</div>
 
       <div className="flex items-end gap-2">
         <button
