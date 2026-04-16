@@ -187,72 +187,65 @@ export default async function TaskDetailPage({ params }: Props) {
               required
             />
           </div>
-        
-        <div>
-  <label className="mb-1 block text-sm font-medium">Effort Level</label>
-  <select
-    name="effortLevel"
-    defaultValue={task.effortLevel}
-    className="w-full rounded border px-3 py-2"
-    required
-  >
-    <option value="LOW">LOW</option>
-    <option value="MEDIUM">MEDIUM</option>
-    <option value="HIGH">HIGH</option>
-    <option value="DEEP_WORK">DEEP_WORK</option>
-  </select>
-</div>
 
-<div>
-  <label className="mb-1 block text-sm font-medium">Complexity</label>
-  <select
-    name="complexity"
-    defaultValue={task.complexity}
-    className="w-full rounded border px-3 py-2"
-    required
-  >
-    <option value="ROUTINE">ROUTINE</option>
-    <option value="MODERATE">MODERATE</option>
-    <option value="STRATEGIC">STRATEGIC</option>
-  </select>
-</div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Effort Level</label>
+            <select
+              name="effortLevel"
+              defaultValue={task.effortLevel}
+              className="w-full rounded border px-3 py-2"
+              required
+            >
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="DEEP_WORK">DEEP_WORK</option>
+            </select>
+          </div>
 
-<div>
-  <label className="mb-1 block text-sm font-medium">
-    Duration (minutes)
-  </label>
-  <input
-    type="number"
-    name="durationMinutes"
-    defaultValue={task.durationMinutes}
-    min={1}
-    className="w-full rounded border px-3 py-2"
-    required
-  />
-</div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Complexity</label>
+            <select
+              name="complexity"
+              defaultValue={task.complexity}
+              className="w-full rounded border px-3 py-2"
+              required
+            >
+              <option value="ROUTINE">ROUTINE</option>
+              <option value="MODERATE">MODERATE</option>
+              <option value="STRATEGIC">STRATEGIC</option>
+            </select>
+          </div>
 
-<div>
-  <label className="mb-1 block text-sm font-medium">Task Category</label>
-  <select
-    name="taskCategory"
-    defaultValue={task.taskCategory ?? ""}
-    className="w-full rounded border px-3 py-2"
-  >
-    <option value="">Tanpa kategori</option>
-    <option value="CREATIVE">CREATIVE</option>
-    <option value="OPERATIONAL">OPERATIONAL</option>
-    <option value="STRATEGIC">STRATEGIC</option>
-    <option value="ADMINISTRATIVE">ADMINISTRATIVE</option>
-  </select>
-</div>
-        
-        
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Duration (minutes)
+            </label>
+            <input
+              type="number"
+              name="durationMinutes"
+              defaultValue={task.durationMinutes}
+              min={1}
+              className="w-full rounded border px-3 py-2"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">Task Category</label>
+            <select
+              name="taskCategory"
+              defaultValue={task.taskCategory ?? ""}
+              className="w-full rounded border px-3 py-2"
+            >
+              <option value="">Tanpa kategori</option>
+              <option value="CREATIVE">CREATIVE</option>
+              <option value="OPERATIONAL">OPERATIONAL</option>
+              <option value="STRATEGIC">STRATEGIC</option>
+              <option value="ADMINISTRATIVE">ADMINISTRATIVE</option>
+            </select>
+          </div>
         </div>
-
-
-
-
-
 
         <div className="flex gap-3">
           <button
